@@ -49,6 +49,8 @@ class HskVocab(QObject):
         param_dict = json.loads(params)
         if 'settings' in param_dict:
             is_at_least_2_char = param_dict.pop('settings')['at_least_2_char']
+        else:
+            is_at_least_2_char = False
         self._lookup_params = list(iter_lookup_params())
 
     @pyqtProperty(str)
@@ -73,7 +75,7 @@ class SpoonFed(QObject):
         def iter_lookup():
             if vocab:
                 for entry in self.entries.values():
-                    if re.search(re.sub(r'…', r'.*', vocab), entry['Chinese']):
+                    if re.search(vocab.replace('…', '.*'), entry['Chinese']):
                         yield entry
         self._lookup = list(iter_lookup())
 

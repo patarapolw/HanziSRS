@@ -19,6 +19,13 @@ ApplicationWindow {
         }
 
         Menu {
+            title: "Explore"
+            MenuItem { text: "Vocabulary by category" }
+            MenuItem { text: "Random Hanzi" }
+            MenuItem { text: "Read an essay" }
+        }
+
+        Menu {
             title: "Statistics"
             MenuItem { text: "Vocabularies" }
             MenuItem { text: "Hanzi" }
@@ -30,12 +37,11 @@ ApplicationWindow {
         Menu {
             title: "Settings"
             MenuItem {
-                text: "User settings"
+                text: "Preferences"
                 onTriggered: {
-                    openNewWindow('user_settings.qml')
+                    openNewWindow('preferences.qml')
                 }
             }
-            MenuItem { text: "Preferences" }
         }
 
         Menu {
@@ -125,6 +131,9 @@ ApplicationWindow {
                     id: hanziNewButton
                     text: "New"
                     enabled: false
+                    onClicked: {
+                        openNewWindow('hanzi_new.qml')
+                    }
                 }
                 Button {
                     id: hanziLearningButton
@@ -213,5 +222,17 @@ ApplicationWindow {
         }
         var window    = component.createObject(root)
         window.show()
+    }
+
+    Component.onCompleted: {
+        var vocabDump = pyUserVocab.get_dump
+        if(vocabDump.length > 0){
+            hanziNewButton.enabled = true
+            readingNewButton.enabled = true
+        }
+        for(var i=0; i<vocabDump.length; i++){
+            if(vocabDump[i][vocabDump[i].length-1] === '1') vocabLearningButton.enabled = true
+            if(vocabDump[i][vocabDump[i].length-1] === '2') vocabReviewButton.enabled = true
+        }
     }
 }

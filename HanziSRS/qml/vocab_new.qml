@@ -6,6 +6,7 @@ import QtQml 2.2
 
 Window {
     id: root
+    title: "Learn new vocab"
     width: 800
     height: 400
 
@@ -43,6 +44,9 @@ Window {
                             if(vocabSimp.currentVocabIndex-1 < 0){
                                 previousVocab.enabled = false
                             }
+
+                            checkInUserDatabase()
+                            py.speak(vocabSimp.text)
                         }
                     }
                     Button {
@@ -57,6 +61,9 @@ Window {
                             if(vocabSimp.currentVocabIndex+1 >= root.vocabList.length){
                                 nextVocab.enabled = false
                             }
+
+                            checkInUserDatabase()
+                            py.speak(vocabSimp.text)
                         }
                     }
                 }
@@ -165,7 +172,7 @@ Window {
                     id: ass_sounds
                     implicitWidth: parent.width
                     onTextEdited: {
-                        checkInDatabase()
+                        checkInUserDatabase()
                     }
                 }
 
@@ -180,7 +187,7 @@ Window {
                     id: ass_meanings
                     implicitWidth: parent.width
                     onTextEdited: {
-                        checkInDatabase()
+                        checkInUserDatabase()
                     }
                 }
             }
@@ -192,10 +199,12 @@ Window {
                     Layout.fillWidth: true
                     background: Rectangle {
                         border.color: "gray"
-                        color: "white"
+                        color: notes.match ? "#badc58" : "white"
                     }
 
                     TextArea {
+                        property bool match: false
+
                         id: notes
                         height: parent.height
                         Layout.fillWidth: true
@@ -210,21 +219,33 @@ Window {
             anchors.bottom: parent.bottom
 
             Button {
+                property bool save: true
+
                 id: saveOrRemove
-                text: "Save"
+                text: save ? "Save" : "Remove"
                 onClicked: {
+                    if(saveOrRemove.save){
+                        saveToUserVocab(0)
+                    } else {
+                        pyUserVocab.do_delete(vocabSimp.text)
+                        saveOrRemove.save = true
+                    }
                 }
             }
             Button {
                 id: addToLearning
                 text: "Add to learning"
                 onClicked: {
+                    saveToUserVocab(1)
+                    addToLearning.enabled = false
                 }
             }
             Button {
                 id: addToReview
                 text: "Add to review"
                 onClicked: {
+                    saveToUserVocab(2)
+                    addToReview.enabled = false
                 }
             }
         }
@@ -233,16 +254,16 @@ Window {
     property var vocabList
 
     Component.onCompleted: {
-        var level = pyUserCred.get_vocab_level
+        var user = JSON.parse(pyUser.get_user)
         var params = {
-            "Old tag": "HSK_Level_" + level,
-            "settings": {
-                "at_least_2_char": true
-            }
+            "Old tag": "HSK_Level_" + user.cred.vocab_level,
+            "settings": user.settings
         }
         pyHskVocab.do_lookup_params(JSON.stringify(params))
         root.vocabList = JSON.parse(pyHskVocab.get_lookup_params)
         setDictionaryEntry(0, 0)
+
+        py.speak(vocabSimp.text)
     }
 
     function setDictionaryEntry(index, entryNumber){
@@ -267,5 +288,33 @@ Window {
                 + sen[i]["Chinese"] + "</a> "
                 + sen[i]["English"]
         }
+
+        checkInUserDatabase()
+    }
+
+    function saveToUserVocab(type){
+        pyUserVocab.do_submit([vocabSimp.text, vocabTrad.text,
+                               ass_sounds.text, ass_meanings.text, notes.text, type])
+        saveOrRemove.save = false
+
+        ass_sounds.match = true
+        ass_meanings.match = true
+        notes.match = true
+    }
+
+    function checkInUserDatabase(){
+        pyUserVocab.do_lookup(vocabSimp.text)
+        var result = pyUserVocab.get_lookup
+        if(result.length !== 0){
+            ass_sounds.match = true
+            ass_meanings.match = true
+            notes.match = true
+        } else {
+            ass_sounds.match = false
+            ass_meanings.match = false
+            notes.match = false
+        }
+
+        return result
     }
 }

@@ -1,12 +1,13 @@
 import sys
+import sqlite3
 
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine
 
 from HanziSRS.db import HskVocab, SpoonFed
-from HanziSRS.user import UserCred
+from HanziSRS.user import User, UserVocab, UserHanzi
 from HanziSRS.utils import Utils
-from HanziSRS.dir import qml_path
+from HanziSRS.dir import qml_path, user_path
 
 
 def main():
@@ -14,8 +15,6 @@ def main():
     app = QGuiApplication(sys.argv)
 
     engine = QQmlApplicationEngine()
-    engine.load(qml_path("main.qml"))
-    engine.quit.connect(app.quit)
     context = engine.rootContext()
 
     hsk_vocab = HskVocab()
@@ -25,8 +24,17 @@ def main():
     utils = Utils()
     context.setContextProperty('py', utils)
 
-    user_cred = UserCred()
-    context.setContextProperty('pyUserCred', user_cred)
+    user = User()
+    context.setContextProperty('pyUser', user)
+
+    user_db = sqlite3.connect(user_path('user.db'))
+    user_vocab = UserVocab(user_db)
+    user_hanzi = UserHanzi(user_db)
+    context.setContextProperty('pyUserVocab', user_vocab)
+    context.setContextProperty('pyUserHanzi', user_hanzi)
+
+    engine.load(qml_path("main.qml"))
+    engine.quit.connect(app.quit)
 
     sys.exit(app.exec_())
 
