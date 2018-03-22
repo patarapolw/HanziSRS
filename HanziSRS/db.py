@@ -58,17 +58,67 @@ class HskVocab(QObject):
         return json.dumps(self._lookup_params)
 
 
-class SpoonFed(QObject):
+class QTsv(QObject):
+    filename = NotImplemented  # type: str
+    chinese_column = NotImplemented  # type: str
+    index_column = NotImplemented  # type: int
+    encoding = 'utf8'
+
     def __init__(self):
         super().__init__()
         self.entries = dict()
-        with open(database_path('SpoonFed.tsv'), encoding='utf8') as f:
+        with open(database_path(self.filename), encoding=self.encoding) as f:
             keys = f.readline().strip().split('\t')
             for row in f:
                 values = row.strip().split('\t')
-                self.entries[values[-1]] = dict(zip(keys, values))
+                self.entries[values[self.index_column]] = dict(zip(keys, values))
 
         self._lookup = []
+        self._lookup_params = []
+
+    @pyqtSlot(str)
+    def do_lookup(self, vocab):
+        def iter_lookup():
+            if vocab:
+                for entry in self.entries.values():
+                    if vocab == entry[self.chinese_column]:
+                        yield entry
+        self._lookup = list(iter_lookup())
+
+    @pyqtProperty(str)
+    def get_lookup(self):
+        return json.dumps(self._lookup)
+
+    @pyqtSlot(str)
+    def do_lookup_params(self, params):
+        def iter_lookup_params():
+            for k, v in param_dict.items():
+                n = ''.join(re.findall(r'\d+', k))
+                if not n:
+                    n = '1'
+                for i in range(1, int(n)+1):
+                    k = re.sub(r'\d+', str(i), k)
+                    for entry in self.entries.values():
+                        for item in entry:
+                            if item[k] == v:
+                                yield entry
+
+        param_dict = json.loads(params)
+        if 'settings' in param_dict:
+            param_dict.pop('settings')
+        self._lookup_params = list(iter_lookup_params())
+
+    @pyqtProperty(str)
+    def get_lookup_params(self):
+        return json.dumps(self._lookup_params)
+
+
+class SpoonFed(QTsv):
+    def __init__(self):
+        self.filename = 'SpoonFed.tsv'
+        self.chinese_column = 'Chinese'
+        self.index_column = -1
+        super().__init__()
 
     @pyqtSlot(str)
     def do_lookup(self, vocab):
@@ -79,6 +129,19 @@ class SpoonFed(QObject):
                         yield entry
         self._lookup = list(iter_lookup())
 
-    @pyqtProperty(str)
-    def get_lookup(self):
-        return json.dumps(self._lookup)
+
+class HanziVariant(QTsv):
+    def __init__(self):
+        self.filename = 'hanzi_variant.tsv'
+        self.chinese_column = 'Character'
+        self.index_column = 1
+        super().__init__()
+
+        entries_update = dict()
+        for entry in self.entries.values():
+            if 'Variant' not in self.entries.keys():
+                continue
+            for char in entry['Variant']:
+                if char not in self.entries.keys():
+                    entries_update[char] = entry
+        self.entries.update(entries_update)

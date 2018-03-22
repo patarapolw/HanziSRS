@@ -19,6 +19,9 @@ Window {
 
             Label {
                 property bool match: false
+                property var previous: []
+                property int charNumber: 0
+
                 color: match ? "green" : "black"
 
                 id: character
@@ -26,10 +29,39 @@ Window {
                 Layout.preferredWidth: 200
                 Layout.preferredHeight: 200
             }
-            Label {
-                text: "<a href='#'>Next character</a>"
-                onLinkActivated: {
-                    new_char(pyUserVocab.get_rand_char)
+
+            RowLayout {
+                spacing: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Button {
+                    id: previousCharButton
+                    text: "Previous"
+                    enabled: false
+                    onClicked: {
+                        character.charNumber--
+                        new_char(character.previous[character.charNumber])
+
+                        if(character.charNumber <= 0)
+                            previousCharButton.enabled = false
+                    }
+                }
+                Button {
+                    id: nextCharButton
+                    text: "Next"
+                    onClicked: {
+                        character.charNumber++
+                        var ch
+                        if(character.charNumber < character.previous.length)
+                            ch = character.previous[character.charNumber]
+                        else {
+                            ch = pyUserVocab.get_rand_char
+                            character.previous.push(ch)
+                        }
+                        new_char(ch)
+
+                        previousCharButton.enabled = true
+                    }
                 }
             }
         }
@@ -137,13 +169,24 @@ Window {
         rel_vocab.text = rel_vocab_text.join('，')
 
         var rel_sen_text = ''
-        pySentence.do_lookup(_char)
-        var sen = JSON.parse(pySentence.get_lookup)
-        for(i=0; i<sen.length; i++){
-            rel_sen_text += "<a href='"+ sen[i].Chinese + "'>"
-                            + sen[i].Chinese + "</a> "
-                            + sen[i].English + "<br />"
+
+        pyHanziVariant.do_lookup(_char)
+        var variants = JSON.parse(pyHanziVariant.get_lookup)
+        var variant
+        for(var m=0; m<variants.length; m++){
+            variant = _char + variants[m]['Variant']
+            for(var n=0; n<variant.length; n++){
+                pySentence.do_lookup(variant[n])
+                var sen = JSON.parse(pySentence.get_lookup)
+                for(i=0; i<sen.length; i++){
+                    rel_sen_text += "<a href='"+ sen[i].Chinese + "'>"
+                                    + sen[i].Chinese + "</a> "
+                                    + sen[i].English + "<br />"
+                }
+            }
         }
+
+
         rel_sen.text = rel_sen_text
 
         pyUserHanzi.do_lookup(_char)
