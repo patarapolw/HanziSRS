@@ -21,11 +21,13 @@ Window {
 
                 Label {
                     property int currentVocabIndex
+                    property bool match
 
                     id: vocabSimp
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "普通话汉字"
                     font.pointSize: 50
+                    color: match ? "green" : "black"
                 }
 
                 RowLayout {
@@ -219,16 +221,15 @@ Window {
             anchors.bottom: parent.bottom
 
             Button {
-                property bool save: true
-
                 id: saveOrRemove
-                text: save ? "Save" : "Remove"
+                text: vocabSimp.match ? "Remove" : "Save"
                 onClicked: {
-                    if(saveOrRemove.save){
-                        saveToUserVocab(0)
-                    } else {
+                    if(vocabSimp.match){
                         pyUserVocab.do_delete(vocabSimp.text)
-                        saveOrRemove.save = true
+                        vocabSimp.match = false
+                    } else {
+                        saveToUserVocab(0)
+                        vocabSimp.match = true
                     }
                 }
             }
@@ -295,24 +296,16 @@ Window {
     function saveToUserVocab(type){
         pyUserVocab.do_submit([vocabSimp.text, vocabTrad.text,
                                ass_sounds.text, ass_meanings.text, notes.text, type])
-        saveOrRemove.save = false
-
-        ass_sounds.match = true
-        ass_meanings.match = true
-        notes.match = true
+        vocabSimp.match = true
     }
 
     function checkInUserDatabase(){
         pyUserVocab.do_lookup(vocabSimp.text)
         var result = pyUserVocab.get_lookup
         if(result.length !== 0){
-            ass_sounds.match = true
-            ass_meanings.match = true
-            notes.match = true
+            vocabSimp.match = true
         } else {
-            ass_sounds.match = false
-            ass_meanings.match = false
-            notes.match = false
+            vocabSimp.match = false
         }
 
         return result

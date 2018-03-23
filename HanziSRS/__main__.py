@@ -5,7 +5,7 @@ from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine
 
 from HanziSRS.db import HskVocab, SpoonFed, HanziVariant
-from HanziSRS.user import User, UserVocab, UserHanzi
+from HanziSRS.user import User, UserVocab, UserHanzi, UserSentence
 from HanziSRS.utils import Utils
 from HanziSRS.dir import qml_path, user_path
 
@@ -33,8 +33,10 @@ def main():
     user_db = sqlite3.connect(user_path('user.db'))
     user_vocab = UserVocab(user_db)
     user_hanzi = UserHanzi(user_db)
+    user_sentence = UserSentence(user_db)
     context.setContextProperty('pyUserVocab', user_vocab)
     context.setContextProperty('pyUserHanzi', user_hanzi)
+    context.setContextProperty('pyUserSentence', user_sentence)
 
     engine.load(qml_path("main.qml"))
     engine.quit.connect(app.quit)

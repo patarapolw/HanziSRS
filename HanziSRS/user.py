@@ -136,15 +136,18 @@ class UserVocab(AbstractDatabase):
                         'is_learning_or_review']  # new: 0, learning: 1, review: 2
         super().__init__(database)
 
-    @pyqtProperty(str)
-    def get_rand_char(self):
-        chars = ''.join([''.join([str(data) for data in item]) for item in self])
-        return choice([char for char in chars if u'\u4e00' <= char <= u'\u9fff'])
-
 
 class UserHanzi(AbstractDatabase):
     def __init__(self, database):
         self.table = 'user_hanzi'
         self.headers = ['hanzi', 'rel_hanzi', 'rel_vocab', 'notes',
+                        'is_learning_or_review']
+        super().__init__(database)
+
+
+class UserSentence(AbstractDatabase):
+    def __init__(self, database):
+        self.table = 'user_sentence'
+        self.headers = ['sentence', 'rel_hanzi', 'rel_vocab', 'notes',
                         'is_learning_or_review']
         super().__init__(database)

@@ -76,6 +76,10 @@ class QTsv(QObject):
         self._lookup = []
         self._lookup_params = []
 
+    @pyqtProperty(str)
+    def get_dump(self):
+        return json.dumps(self.entries)
+
     @pyqtSlot(str)
     def do_lookup(self, vocab):
         def iter_lookup():
@@ -138,10 +142,20 @@ class HanziVariant(QTsv):
         super().__init__()
 
         entries_update = dict()
-        for entry in self.entries.values():
-            if 'Variant' not in self.entries.keys():
-                continue
+        for key, entry in self.entries.items():
+            if 'Variant' not in entry.keys():
+                self.entries[key]['Variant'] = ''
             for char in entry['Variant']:
                 if char not in self.entries.keys():
                     entries_update[char] = entry
+
         self.entries.update(entries_update)
+
+    @pyqtSlot(str)
+    def do_lookup(self, vocab):
+        def iter_lookup():
+            if vocab:
+                for entry in self.entries.values():
+                    if vocab in (entry[self.chinese_column]+entry['Variant']):
+                        yield entry
+        self._lookup = list(iter_lookup())

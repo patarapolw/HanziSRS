@@ -8,6 +8,7 @@ Window {
     height: 400
     x: 200
     y: 200
+    id: root
 
     RowLayout {
         anchors.margins: 10
@@ -55,7 +56,7 @@ Window {
                         if(character.charNumber < character.previous.length)
                             ch = character.previous[character.charNumber]
                         else {
-                            ch = pyUserVocab.get_rand_char
+                            ch = getRandChar()
                             character.previous.push(ch)
                         }
                         new_char(ch)
@@ -157,6 +158,8 @@ Window {
         }
     }
 
+    property string characterPool: ''
+
     function new_char(_char) {
         character.text = _char
 
@@ -174,7 +177,7 @@ Window {
         var variants = JSON.parse(pyHanziVariant.get_lookup)
         var variant
         for(var m=0; m<variants.length; m++){
-            variant = _char + variants[m]['Variant']
+            variant = variants[m]['Character'] + variants[m]['Variant']
             for(var n=0; n<variant.length; n++){
                 pySentence.do_lookup(variant[n])
                 var sen = JSON.parse(pySentence.get_lookup)
@@ -185,7 +188,6 @@ Window {
                 }
             }
         }
-
 
         rel_sen.text = rel_sen_text
 
@@ -236,7 +238,24 @@ Window {
         return lookup
     }
 
+    function getRandChar(){
+        var index = Math.floor(Math.random() * root.characterPool.length);
+        character.text = root.characterPool[index]
+
+        return root.characterPool[index]
+    }
+
     Component.onCompleted: {
-        new_char(pyUserVocab.get_rand_char)
+        var all_chars = JSON.stringify(pyUserVocab.get_dump)
+                    + JSON.stringify(pyUserSentence.get_dump)
+        for(var i=0; i<all_chars.length; i++){
+            if(all_chars[i] >= '\u4e00' && all_chars[i] <= '\u9fff'){
+                if(root.characterPool.indexOf(all_chars[i]) === -1){
+                    root.characterPool += all_chars[i]
+                }
+            }
+        }
+
+        new_char(getRandChar())
     }
 }

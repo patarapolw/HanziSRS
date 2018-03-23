@@ -22,7 +22,12 @@ ApplicationWindow {
             title: "Explore"
             MenuItem { text: "Vocabulary by category" }
             MenuItem { text: "Random Hanzi" }
-            MenuItem { text: "Read an essay" }
+            MenuItem {
+                text: "Read a sentence"
+                onTriggered: {
+                    openNewWindow('reading_explore.qml')
+                }
+            }
         }
 
         Menu {
