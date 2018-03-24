@@ -4,7 +4,7 @@ import sqlite3
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine
 
-from HanziSRS.db import HskVocab, SpoonFed, HanziVariant, VocabCategory
+from HanziSRS.db import HskVocab, SpoonFed, HanziVariant, VocabCategory, HanziLevel
 from HanziSRS.user import User, UserVocab, UserHanzi, UserSentence
 from HanziSRS.utils import Utils
 from HanziSRS.dir import qml_path, user_path
@@ -21,10 +21,12 @@ def main():
     spoonfed = SpoonFed()
     hanzi_variant = HanziVariant()
     vocab_category = VocabCategory()
+    hanzi_level = HanziLevel()
     context.setContextProperty('pyHskVocab', hsk_vocab)
     context.setContextProperty('pySentence', spoonfed)
     context.setContextProperty('pyHanziVariant', hanzi_variant)
     context.setContextProperty('pyVocabCategory', vocab_category)
+    context.setContextProperty('pyHanziLevel', hanzi_level)
 
     utils = Utils()
     context.setContextProperty('py', utils)

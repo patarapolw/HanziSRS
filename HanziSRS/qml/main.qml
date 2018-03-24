@@ -44,7 +44,12 @@ ApplicationWindow {
         Menu {
             title: "Statistics"
             MenuItem { text: "Vocabularies" }
-            MenuItem { text: "Hanzi" }
+            MenuItem {
+                text: "Hanzi"
+                onTriggered: {
+                    openNewWindow("hanzi_stat.qml")
+                }
+            }
             MenuItem { text: "Reading" }
             MenuSeparator {}
             MenuItem { text: "Summary" }

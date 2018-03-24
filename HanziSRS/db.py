@@ -165,9 +165,6 @@ class VocabCategory(QObject):
     def __init__(self):
         super().__init__()
         self.entries = dict()
-        vocab = ''
-        reading = ''
-        english = ''
         category = NotImplemented  # type: str
 
         with open(database_path('vocab_category.txt')) as f:
@@ -180,7 +177,6 @@ class VocabCategory(QObject):
                 else:
                     vocab, reading, english = match_obj.groups()
 
-                if vocab:
                     if vocab not in self.entries.keys():
                         self.entries[vocab] = {
                             'vocab': vocab,
@@ -227,3 +223,21 @@ class VocabCategory(QObject):
     @pyqtProperty(str)
     def get_categories(self):
         return json.dumps(self._categories)
+
+
+class HanziLevel(QObject):
+    def __init__(self):
+        super().__init__()
+        self.levels = []
+        category = NotImplemented  # type: str
+        with open(database_path('hanzi_level.txt')) as f:
+            for row in f:
+                match_obj = re.match(r'(\d+)-(\d+) (\S+)', row)
+                if match_obj is not None:
+                    _, _, category = match_obj.groups()
+                else:
+                    self.levels.append([row.strip(), category])
+
+    @pyqtProperty(str)
+    def get_levels(self):
+        return json.dumps(self.levels)
