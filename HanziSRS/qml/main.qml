@@ -20,7 +20,12 @@ ApplicationWindow {
 
         Menu {
             title: "Explore"
-            MenuItem { text: "Vocabulary by category" }
+            MenuItem {
+                text: "Vocabulary by category"
+                onTriggered: {
+                    openNewWindow("vocab_category.qml")
+                }
+            }
             MenuItem { text: "Random Hanzi" }
             MenuItem {
                 text: "Read a sentence"
@@ -225,8 +230,7 @@ ApplicationWindow {
                 console.debug("Error:"+ component.errorString() );
             return; // or maybe throw
         }
-        var window    = component.createObject(root)
-        window.show()
+        component.createObject(root)
     }
 
     Component.onCompleted: {

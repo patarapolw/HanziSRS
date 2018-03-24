@@ -159,3 +159,70 @@ class HanziVariant(QTsv):
                     if vocab in (entry[self.chinese_column]+entry['Variant']):
                         yield entry
         self._lookup = list(iter_lookup())
+
+
+class VocabCategory(QObject):
+    def __init__(self):
+        super().__init__()
+        self.entries = dict()
+        vocab = ''
+        reading = ''
+        english = ''
+        category = NotImplemented  # type: str
+
+        with open(database_path('vocab_category.txt')) as f:
+            for row in f:
+                match_obj = re.match(r'([^\t]*)\t([^\t]*)\t([^\t]*)[\t\n]', row)
+                if not match_obj:
+                    category = row.strip().lower()
+                    if not category:
+                        continue
+                else:
+                    vocab, reading, english = match_obj.groups()
+
+                if vocab:
+                    if vocab not in self.entries.keys():
+                        self.entries[vocab] = {
+                            'vocab': vocab,
+                            'reading': reading,
+                            'english': english,
+                            'categories': [category]
+                        }
+                    else:
+                        if category not in self.entries[vocab]['categories']:
+                            self.entries[vocab]['categories'].append(category)
+
+        self._lookup = dict()
+        self._lookup_category = []
+        self._categories = dict()
+        self._category = ''
+        self._do_categories()
+
+    @pyqtSlot(str)
+    def do_lookup(self, vocab):
+        self._lookup = self.entries[vocab]
+
+    @pyqtProperty(str)
+    def get_lookup(self):
+        return json.dumps(self._lookup)
+
+    @pyqtSlot(str)
+    def do_lookup_category(self, category):
+        def iter_lookup():
+            for entry in self.entries.values():
+                if category in entry['categories']:
+                    yield entry
+        self._lookup_category = list(iter_lookup())
+
+    @pyqtProperty(str)
+    def get_lookup_category(self):
+        return json.dumps(self._lookup_category)
+
+    def _do_categories(self):
+        for entry in self.entries.values():
+            for category in entry['categories']:
+                self._categories[category] = self._categories.setdefault(category, 0) + 1
+
+    @pyqtProperty(str)
+    def get_categories(self):
+        return json.dumps(self._categories)

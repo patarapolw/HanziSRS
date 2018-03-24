@@ -9,6 +9,7 @@ Window {
     x: 200
     y: 200
     id: root
+    visible: true
 
     RowLayout {
         anchors.margins: 10

@@ -9,6 +9,7 @@ Window {
     title: "Learn new vocab"
     width: 800
     height: 400
+    visible: true
 
     ColumnLayout {
         anchors.margins: 10

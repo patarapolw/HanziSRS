@@ -9,6 +9,7 @@ Window {
     title: "Preferences"
     width: 600
     height: 600
+    visible: true
 
     ColumnLayout {
         id: overall
