@@ -26,6 +26,8 @@ Window {
                     Text {
                         text: "-"
                         MouseArea {
+                            id: minusSlider
+
                             anchors.fill: parent
                             onClicked: {
                                 level.decrease()
@@ -43,6 +45,8 @@ Window {
                     Text {
                         text: "+"
                         MouseArea {
+                            id: plusSlider
+
                             anchors.fill: parent
                             onClicked: {
                                 level.increase()
@@ -73,6 +77,12 @@ Window {
                 text: "普通话汉字"
                 font.pointSize: 50
                 color: match ? "green" : "black"
+
+                focus: true
+                Keys.onLeftPressed: minusSlider.clicked(Qt.LeftButton)
+                Keys.onRightPressed: plusSlider.clicked(Qt.LeftButton)
+                Keys.onReturnPressed: speak.clicked(Qt.LeftButton)
+                Keys.onSpacePressed: saveOrRemove.clicked(Qt.LeftButton)
             }
             Label {
                 id: english
@@ -85,6 +95,7 @@ Window {
         Button {
             anchors.horizontalCenter: parent.horizontalCenter
 
+            id: speak
             text: "Speak"
             onClicked: {
                 py.speak(sentence.text)
@@ -190,6 +201,7 @@ Window {
     }
 
     property var sentences: []
+    property var user
 
     Component.onCompleted: {
         var sentences = JSON.parse(pySentence.get_dump)
@@ -199,7 +211,15 @@ Window {
         level.from = 1
         level.to = root.sentences.length
 
+        root.user = JSON.parse(pyUser.get_user)
+        level.value = root.user.state.sentence
+
         loadSentence(level.value)
+    }
+
+    onClosing: {
+        root.user.state.sentence = level.value
+        pyUser.set_user(JSON.stringify(root.user))
     }
 
     function loadSentence(value){

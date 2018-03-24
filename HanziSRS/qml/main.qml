@@ -21,6 +21,12 @@ ApplicationWindow {
         Menu {
             title: "Explore"
             MenuItem {
+                text: "Vocabulary dictionary"
+                onTriggered: {
+//                    openNewWindow("vocab_dictionary.qml")
+                }
+            }
+            MenuItem {
                 text: "Vocabulary by category"
                 onTriggered: {
                     openNewWindow("vocab_category.qml")

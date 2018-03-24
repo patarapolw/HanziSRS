@@ -188,6 +188,7 @@ class VocabCategory(QObject):
                             'english': english,
                             'categories': [category]
                         }
+                        vocab = ''
                     else:
                         if category not in self.entries[vocab]['categories']:
                             self.entries[vocab]['categories'].append(category)

@@ -299,7 +299,7 @@ Item {
                             pyUserVocab.do_delete(vocabSimp.text)
                             vocabSimp.match = false
                         } else {
-                            saveToUserVocab(0)
+                            main.saveToUserVocab(0)
                             vocabSimp.match = true
                         }
                     }
@@ -308,7 +308,7 @@ Item {
                     id: addToLearning
                     text: "Add to learning"
                     onClicked: {
-                        saveToUserVocab(1)
+                        main.saveToUserVocab(1)
                         addToLearning.enabled = false
                     }
                 }
@@ -316,7 +316,7 @@ Item {
                     id: addToReview
                     text: "Add to review"
                     onClicked: {
-                        saveToUserVocab(2)
+                        main.saveToUserVocab(2)
                         addToReview.enabled = false
                     }
                 }
@@ -336,7 +336,6 @@ Item {
             main.setDictionaryEntry(0)
 
             py.speak(vocabSimp.text)
-            console.log(JSON.stringify(main.vocabList))
         }
 
         function setDictionaryEntry(index){

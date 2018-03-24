@@ -27,6 +27,9 @@ class User(QObject):
         self._settings = self._user.setdefault('settings', {
             'at_least_2_char': True,
         })
+        self._state = self._user.setdefault('state', {
+            'sentence': 1
+        })
 
     def save(self):
         with open(self.database, 'w') as f:
@@ -38,7 +41,7 @@ class User(QObject):
 
     @pyqtSlot(str)
     def set_user(self, user):
-        self._user = user
+        self._user = json.loads(user)
         self.save()
 
     @pyqtProperty(str)
