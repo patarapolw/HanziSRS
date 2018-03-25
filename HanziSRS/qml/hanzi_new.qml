@@ -21,8 +21,6 @@ Window {
 
             Label {
                 property bool match: false
-                property var previous: []
-                property int charNumber: 0
 
                 color: match ? "green" : "black"
 
@@ -41,10 +39,11 @@ Window {
                     text: "Previous"
                     enabled: false
                     onClicked: {
-                        character.charNumber--
-                        new_char(character.previous[character.charNumber])
+                        root.currentCharIndex--
+                        new_char(root.characterPool[root.currentCharIndex])
 
-                        if(character.charNumber <= 0)
+                        nextCharButton.enabled = true
+                        if(root.currentCharIndex <= 0)
                             previousCharButton.enabled = false
                     }
                 }
@@ -52,17 +51,12 @@ Window {
                     id: nextCharButton
                     text: "Next"
                     onClicked: {
-                        character.charNumber++
-                        var ch
-                        if(character.charNumber < character.previous.length)
-                            ch = character.previous[character.charNumber]
-                        else {
-                            ch = getRandChar()
-                            character.previous.push(ch)
-                        }
-                        new_char(ch)
+                        root.currentCharIndex++
+                        new_char(root.characterPool[root.currentCharIndex])
 
                         previousCharButton.enabled = true
+                        if(root.currentCharIndex >= root.characterPool.length-1)
+                            nextCharButton.enabled = false
                     }
                 }
             }
@@ -159,7 +153,8 @@ Window {
         }
     }
 
-    property string characterPool: ''
+    property var characterPool: []
+    property int currentCharIndex: 0
 
     function new_char(_char) {
         character.text = _char
@@ -239,11 +234,13 @@ Window {
         return lookup
     }
 
-    function getRandChar(){
-        var index = Math.floor(Math.random() * root.characterPool.length);
-        character.text = root.characterPool[index]
-
-        return root.characterPool[index]
+    function shuffleArray(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
     }
 
     Component.onCompleted: {
@@ -252,11 +249,15 @@ Window {
         for(var i=0; i<all_chars.length; i++){
             if(all_chars[i] >= '\u4e00' && all_chars[i] <= '\u9fff'){
                 if(root.characterPool.indexOf(all_chars[i]) === -1){
-                    root.characterPool += all_chars[i]
+                    root.characterPool.push(all_chars[i])
                 }
             }
         }
 
-        new_char(getRandChar())
+        shuffleArray(root.characterPool)
+        new_char(root.characterPool[root.currentCharIndex])
+
+        if(root.characterPool.length === 1)
+            nextCharButton.enabled = false
     }
 }

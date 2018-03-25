@@ -241,3 +241,38 @@ class HanziLevel(QObject):
     @pyqtProperty(str)
     def get_levels(self):
         return json.dumps(self.levels)
+
+
+class Cedict(QObject):
+    def __init__(self):
+        super().__init__()
+        self.dictionary = dict()
+        with open(database_path('cedict_ts.u8'), encoding='utf8') as f:
+            for row in f.readlines():
+                result = re.search(r'(\w+) (\w+) \[(.+)\] /(.+)/\n', row)
+                if result is not None:
+                    trad, simp, pinyin, eng = result.groups()
+                    self.dictionary.setdefault(simp, [])
+                    self.dictionary.setdefault(trad, [])
+                    self.dictionary[simp].append({
+                        'traditional': trad,
+                        'simplified': simp,
+                        'reading': pinyin,
+                        'english': eng
+                    })
+                    if trad != simp:
+                        self.dictionary[trad].append(self.dictionary[simp][-1])
+
+        self._lookup = []
+
+    @pyqtSlot(str)
+    def do_lookup(self, vocab):
+        if vocab in self.dictionary:
+            self._lookup = self.dictionary[vocab]
+        else:
+            self._lookup = []
+
+    @pyqtProperty(str)
+    def get_lookup(self):
+        return json.dumps(self._lookup)
+

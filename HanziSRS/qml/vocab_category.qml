@@ -132,7 +132,7 @@ Item {
                             enabled: false
                             onClicked: {
                                 vocabSimp.currentVocabIndex--
-                                main.setDictionaryEntry(vocabSimp.currentVocabIndex)
+                                main.setDictionaryEntry(vocabSimp.currentVocabIndex, 0)
 
                                 nextVocab.enabled = true
                                 if(vocabSimp.currentVocabIndex-1 < 0){
@@ -149,7 +149,7 @@ Item {
                             enabled: true
                             onClicked: {
                                 vocabSimp.currentVocabIndex++
-                                main.setDictionaryEntry(vocabSimp.currentVocabIndex)
+                                main.setDictionaryEntry(vocabSimp.currentVocabIndex, 0)
 
                                 previousVocab.enabled = true
                                 if(vocabSimp.currentVocabIndex+1 >= main.vocabList.length){
@@ -165,6 +165,17 @@ Item {
 
                 ColumnLayout {
                     RowLayout {
+                        Rectangle {
+                            width: 100
+
+                            Label {
+                                id: vocabTrad
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "普通話漢字"
+                                font.pointSize: 30
+                            }
+                        }
+
                         ColumnLayout {
                             RowLayout {
                                 Label { text: "Reading : "}
@@ -192,7 +203,7 @@ Item {
                                         textFormat: TextEdit.RichText
                                         readOnly: true
                                         onLinkActivated: {
-                                            main.setDictionaryEntry(vocabSimp.currentVocabIndex)
+                                            main.setDictionaryEntry(vocabSimp.currentVocabIndex, link)
                                         }
                                     }
                                 }
@@ -333,18 +344,41 @@ Item {
 
             pyVocabCategory.do_lookup_category(category)
             main.vocabList = JSON.parse(pyVocabCategory.get_lookup_category)
-            main.setDictionaryEntry(0)
+            main.setDictionaryEntry(0, 0)
 
             py.speak(vocabSimp.text)
         }
 
-        function setDictionaryEntry(index){
+        function setDictionaryEntry(index, link){
             var result = main.vocabList[index]
+            pyCedict.do_lookup(result['vocab'])
+            var lookup = JSON.parse(pyCedict.get_lookup)
 
             vocabSimp.text = result["vocab"]
             pinyin.text = "<a href='" + result["vocab"] + "'>"
                 + result["reading"] + "</a>"
-            english.text = result["english"]
+
+            if(lookup.length !== 0){
+                vocabTrad.text = lookup[link].traditional
+
+                english.text = lookup[link].english
+
+                english.text += "<br />Meaning " + (parseInt(link)+1) + " of "
+                            + lookup.length + " "
+
+                var line_next_meaning = ''
+                if(link > 0){
+                    line_next_meaning += "<a href='" + (parseInt(link)-1) + "'>Previous meaning</a> "
+                }
+
+                if(link < lookup.length-1){
+                    line_next_meaning += "<a href='" + (parseInt(link)+1) + "'>Next meaning</a>"
+                }
+                english.text += line_next_meaning
+            } else {
+                vocabTrad.text = ''
+                english.text = result["english"]
+            }
 
             pySentence.do_lookup(vocabSimp.text)
             var sen = JSON.parse(pySentence.get_lookup)
@@ -360,7 +394,7 @@ Item {
         }
 
         function saveToUserVocab(type){
-            pyUserVocab.do_submit([vocabSimp.text, "",
+            pyUserVocab.do_submit([vocabSimp.text, vocabTrad.text,
                                    ass_sounds.text, ass_meanings.text, notes.text, type])
             vocabSimp.match = true
         }

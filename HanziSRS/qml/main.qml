@@ -32,6 +32,7 @@ ApplicationWindow {
                     openNewWindow("vocab_category.qml")
                 }
             }
+            MenuSeparator {}
             MenuItem { text: "Random Hanzi" }
             MenuItem {
                 text: "Read a sentence"
