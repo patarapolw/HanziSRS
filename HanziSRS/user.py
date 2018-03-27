@@ -1,11 +1,11 @@
 import os
 import json
 from time import time
-from random import choice
 
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtProperty
 
 from HanziSRS.dir import user_path
+from HanziSRS.srs import next_review_timestamp, correct_next_srs
 
 
 class User(QObject):
@@ -26,6 +26,10 @@ class User(QObject):
         })
         self._settings = self._user.setdefault('settings', {
             'at_least_2_char': True,
+            "srs_interval": {
+                "learning": ["1h", "4h", "8h"],
+                "review": ["1d", "3d", "1w", "4w", "4mo"]
+            }
         })
         self._state = self._user.setdefault('state', {
             'sentence': 1
@@ -97,6 +101,12 @@ class AbstractDatabase(QObject):
         if len(headers) != len(self.headers):
             raise IndexError('List must be of length {}'.format(len(self.headers)))
         self.do_delete(headers[0])
+
+        srs = int(headers[self.headers.index("srs")])
+        srs_type = headers[self.headers.index("is_learning_or_review")]
+        srs, srs_type = correct_next_srs(srs, srs_type)
+        headers[self.headers.index("next_review")] = next_review_timestamp(srs, srs_type)
+
         query_string = 'INSERT INTO {} (id,' + ('{},'*len(self.headers))[:-1] \
                        + ') VALUES (?,' + ('?,'*len(self.headers))[:-1] + ');'
         self.db.execute(query_string.format(self.table, *self.headers),
@@ -136,7 +146,7 @@ class UserVocab(AbstractDatabase):
     def __init__(self, database):
         self.table = 'user_vocab'
         self.headers = ['vocab_simp', 'vocab_trad', 'ass_sounds', 'ass_meanings', 'notes',
-                        'is_learning_or_review']  # new: 0, learning: 1, review: 2
+                        'is_learning_or_review', 'srs', 'next_review']  # new: 0, learning: 1, review: 2
         super().__init__(database)
 
 
@@ -144,7 +154,7 @@ class UserHanzi(AbstractDatabase):
     def __init__(self, database):
         self.table = 'user_hanzi'
         self.headers = ['hanzi', 'rel_hanzi', 'rel_vocab', 'notes',
-                        'is_learning_or_review']
+                        'is_learning_or_review', 'srs', 'next_review']
         super().__init__(database)
 
 
@@ -152,5 +162,5 @@ class UserSentence(AbstractDatabase):
     def __init__(self, database):
         self.table = 'user_sentence'
         self.headers = ['sentence', 'rel_hanzi', 'rel_vocab', 'notes',
-                        'is_learning_or_review']
+                        'is_learning_or_review', 'srs', 'next_review']
         super().__init__(database)

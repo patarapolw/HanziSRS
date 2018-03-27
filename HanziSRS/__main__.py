@@ -1,5 +1,6 @@
 import sys
 import sqlite3
+from time import time
 
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine
@@ -11,6 +12,7 @@ from HanziSRS.dir import qml_path, user_path
 
 
 def main():
+    start = time()
     sys.argv += ['--style', 'fusion']
     app = QGuiApplication(sys.argv)
 
@@ -43,6 +45,8 @@ def main():
     context.setContextProperty('pyUserVocab', user_vocab)
     context.setContextProperty('pyUserHanzi', user_hanzi)
     context.setContextProperty('pyUserSentence', user_sentence)
+
+    print("Startup time: {:.4f} seconds".format(time()-start))
 
     engine.load(qml_path("main.qml"))
     engine.quit.connect(app.quit)

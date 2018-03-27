@@ -232,7 +232,7 @@ Window {
 
     function saveToUserSentence(type){
         pyUserSentence.do_submit([sentence.text, rel_hanzi.text, rel_vocab.text,
-                                    notes.text, type.text])
+                                    notes.text, type, 0, 0])
         sentence.match = true
     }
 

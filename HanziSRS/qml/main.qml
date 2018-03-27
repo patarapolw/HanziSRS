@@ -252,8 +252,8 @@ ApplicationWindow {
             readingNewButton.enabled = true
         }
         for(var i=0; i<vocabDump.length; i++){
-            if(vocabDump[i][vocabDump[i].length-1] === '1') vocabLearningButton.enabled = true
-            if(vocabDump[i][vocabDump[i].length-1] === '2') vocabReviewButton.enabled = true
+            if(vocabDump[i][-3] === '1') vocabLearningButton.enabled = true
+            if(vocabDump[i][-3] === '2') vocabReviewButton.enabled = true
         }
     }
 }

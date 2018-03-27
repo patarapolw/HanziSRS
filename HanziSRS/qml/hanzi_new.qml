@@ -68,10 +68,10 @@ Window {
                 property bool match: false
                 background: Rectangle {
                     border.color: "gray"
-                    color: rel_char.match ? "#badc58" : "#ffffff"
+                    color: rel_hanzi.match ? "#badc58" : "#ffffff"
                 }
 
-                id: rel_char
+                id: rel_hanzi
                 Layout.fillWidth: true
                 onTextEdited: {
                     checkInDatabase()
@@ -91,14 +91,11 @@ Window {
                 onTextEdited: {
                     checkInDatabase()
                 }
-                onAccepted: {
-                    saveOrRemove.click()
-                }
             }
 
             Label { text: "Related sentences : "}
             ScrollView {
-                implicitHeight: 200
+                implicitHeight: 150
                 Layout.fillWidth: true
 
                 TextArea {
@@ -114,39 +111,50 @@ Window {
                 }
             }
 
+            Label { text: "Notes : "}
+            ScrollView {
+                implicitHeight: 50
+                Layout.fillWidth: true
+
+                TextArea {
+                    id: notes
+                    height: parent.height
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                }
+            }
+
             RowLayout {
                 anchors.right: parent.right
+                anchors.bottom: parent.bottom
 
                 Button {
-                    property bool save: true
-
                     id: saveOrRemove
-                    text: save ? "Save" : "Remove"
+                    text: character.match ? "Remove" : "Save"
                     onClicked: {
-                        if(saveOrRemove.save) {
-                            pyUserHanzi.do_submit(character.text, rel_char.text, rel_vocab.text)
-                            character.match = true
-                            rel_char.match = true
-                            rel_char.match = true
-                            rel_vocab.match = true
-
-                            saveOrRemove.save = false
-                        } else {
+                        if(character.match){
                             pyUserHanzi.do_delete(character.text)
                             character.match = false
-                            rel_char.match = false
-                            rel_vocab.match = false
-
-                            saveOrRemove.save = true
+                        } else {
+                            saveToUserHanzi(0)
+                            character.match = true
                         }
                     }
                 }
                 Button {
-                    id: reset
-                    text: "Reset"
-                    enabled: false
+                    id: addToLearning
+                    text: "Add to learning"
                     onClicked: {
-                        new_char(character.text)
+                        saveToUserHanzi(1)
+                        addToLearning.enabled = false
+                    }
+                }
+                Button {
+                    id: addToReview
+                    text: "Add to review"
+                    onClicked: {
+                        saveToUserHanzi(2)
+                        addToReview.enabled = false
                     }
                 }
             }
@@ -190,10 +198,10 @@ Window {
         pyUserHanzi.do_lookup(_char)
         var lookup = pyUserHanzi.get_lookup
         if(lookup.length === 2){
-            rel_char.text = lookup[0]
+            rel_hanzi.text = lookup[0]
             rel_vocab.text = lookup[1]
         } else {
-            rel_char.text = ""
+            rel_hanzi.text = ""
         }
 
         checkInDatabase()
@@ -203,12 +211,11 @@ Window {
         var lookup = pyUserHanzi.get_lookup
         if(lookup.length !== 0){
             character.match = true
-            saveOrRemove.save = true
 
-            if(lookup[0] == rel_char.text){
-                rel_char.match = true
+            if(lookup[0] == rel_hanzi.text){
+                rel_hanzi.match = true
             } else {
-                rel_char.match = false
+                rel_hanzi.match = false
             }
             if(lookup[1] == rel_vocab.text){
                 rel_vocab.match = true
@@ -217,18 +224,9 @@ Window {
             }
         } else {
             character.match = false
-            saveOrRemove.save = false
 
-            rel_char.match = false
+            rel_hanzi.match = false
             rel_vocab.match = false
-        }
-
-        if(rel_char.text){
-            saveOrRemove.save = true
-            reset.enabled = true
-        } else {
-            saveOrRemove.save = false
-            reset.enabled = false
         }
 
         return lookup
@@ -241,6 +239,12 @@ Window {
             array[i] = array[j];
             array[j] = temp;
         }
+    }
+
+    function saveToUserHanzi(type){
+        pyUserHanzi.do_submit([character.text, rel_hanzi.text, rel_vocab.text,
+                                    notes.text, type.text, 0, 0])
+        character.match = true
     }
 
     Component.onCompleted: {

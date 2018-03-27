@@ -1,5 +1,6 @@
 import json
 import re
+from bs4 import BeautifulSoup
 
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtProperty
 
@@ -71,7 +72,8 @@ class QTsv(QObject):
             keys = f.readline().strip().split('\t')
             for row in f:
                 values = row.strip().split('\t')
-                self.entries[values[self.index_column]] = dict(zip(keys, values))
+                self.entries[values[self.index_column]] = \
+                    dict(zip(keys, [BeautifulSoup(value, "html.parser").text for value in values]))
 
         self._lookup = []
         self._lookup_params = []

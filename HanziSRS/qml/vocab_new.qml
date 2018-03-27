@@ -296,7 +296,7 @@ Window {
 
     function saveToUserVocab(type){
         pyUserVocab.do_submit([vocabSimp.text, vocabTrad.text,
-                               ass_sounds.text, ass_meanings.text, notes.text, type])
+                               ass_sounds.text, ass_meanings.text, notes.text, type, 0, 0])
         vocabSimp.match = true
     }
 
