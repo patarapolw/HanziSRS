@@ -20,6 +20,11 @@ class User:
             yield row[1]
             yield row[2]
 
+    def load_user_sentence(self):
+        cursor = self.db.execute('SELECT * FROM user_sentence')
+        for row in cursor:
+            yield row[1]
+
 
 if __name__ == '__main__':
-    pass
+    User().load_user_sentence()

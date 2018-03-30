@@ -6,7 +6,7 @@ from analyze.tag import HskVocab, Category, HanziLevelProject
 from analyze.lookup import Cedict, SpoonFed
 
 
-class AnkiAnalyze:
+class Vocab:
     def __init__(self):
         self.user = User()
         self.hsk = HskVocab()
@@ -47,9 +47,11 @@ class AnkiAnalyze:
                     tags.extend(hanzi_level_and_category)
                     hanzi_level = re.findall(r'\d+', hanzi_level_and_category[0])[0]
                 lookup = self.cedict.get(vocab)
+                simplified = lookup.get('Simplified', '')
+                traditional = lookup.get('traditional', '')
                 fields = [
                     lookup.get('Simplified', '') if lookup.get('Simplified', '') else vocab,
-                    lookup.get('traditional', ''),
+                    lookup.get('traditional', '') if simplified != traditional else '',
                     lookup.get('reading', ''),
                     lookup.get('english', ''),
                     hanzi_level,
@@ -67,10 +69,28 @@ class AnkiAnalyze:
                                    for item in self.to_unsuspend[i: i+50]]))
             except IndexError:
                 print(' OR '.join(['Simplified:{0} OR Traditional:{0}'.format(item)
-                                   for item in self.to_unsuspend[i]]))
+                                   for item in self.to_unsuspend[i:]]))
+
+
+class Sentence:
+    def __init__(self):
+        self.user = User()
+
+        self.to_unsuspend = []
+        for sentence in self.user.load_user_sentence():
+            self.to_unsuspend.append(sentence)
+
+    def unsuspend_to_query(self):
+        for i in range(0, len(self.to_unsuspend), 50):
+            try:
+                print(' OR '.join(['Hanzi:{0}'.format(item)
+                                   for item in self.to_unsuspend[i: i+50]]))
+            except IndexError:
+                print(' OR '.join(['Hanzi:{0}'.format(item)
+                                   for item in self.to_unsuspend[i:]]))
 
 
 if __name__ == '__main__':
-    a = AnkiAnalyze()
-    a.unsuspend_to_query()
-    # a.to_tsv('custom_vocab.tsv')
+    a = Vocab()
+    # a.unsuspend_to_query()
+    a.to_tsv('custom_vocab.tsv')
