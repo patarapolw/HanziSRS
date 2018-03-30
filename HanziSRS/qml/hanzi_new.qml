@@ -95,7 +95,7 @@ Window {
 
             Label { text: "Related sentences : "}
             ScrollView {
-                implicitHeight: 150
+                implicitHeight: 100
                 Layout.fillWidth: true
 
                 TextArea {
@@ -113,14 +113,19 @@ Window {
 
             Label { text: "Notes : "}
             ScrollView {
-                implicitHeight: 50
+                implicitHeight: 100
                 Layout.fillWidth: true
+                background: Rectangle {
+                    anchors.fill: parent
+                    border.color: "gray"
+                }
 
                 TextArea {
                     id: notes
                     height: parent.height
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
+                    readOnly: false
                 }
             }
 

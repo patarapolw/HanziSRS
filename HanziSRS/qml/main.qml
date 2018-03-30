@@ -12,8 +12,23 @@ ApplicationWindow {
     menuBar: MenuBar {
         Menu {
             title: "File"
-            MenuItem { text: "Import..." }
+            Menu {
+                title: "Import..."
+                MenuItem { text: "From CSV" }
+                MenuItem { text: "From TSV" }
+                MenuItem { text: "From Excel" }
+                MenuItem { text: "From Anki package (*.apkg)" }
+            }
+            Menu {
+                title: "Export..."
+                MenuItem { text: "To CSV" }
+                MenuItem { text: "To TSV" }
+                MenuItem { text: "To Excel" }
+                MenuItem { text: "To AnkiConnect" }
+            }
+            MenuSeparator {}
             MenuItem { text: "Backup database" }
+            MenuItem { text: "Load from backup" }
             MenuSeparator {}
             MenuItem { text: "Quit" }
         }

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 PROJECT_NAME = 'HanziSRS'
-mainscript = '{}/__main__.py'.format(PROJECT_NAME)
+mainscript = '{}/to_ankiconnect.py'.format(PROJECT_NAME)
 setup_requires = ['PyQt5', 'google_speech', 'bs4']
 
 if sys.platform == 'darwin':

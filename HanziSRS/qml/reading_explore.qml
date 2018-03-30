@@ -77,6 +77,7 @@ Window {
                 text: "普通话汉字"
                 font.pointSize: 50
                 color: match ? "green" : "black"
+                wrapMode: Text.WrapAnywhere
 
                 focus: true
                 Keys.onLeftPressed: minusSlider.clicked(Qt.LeftButton)
