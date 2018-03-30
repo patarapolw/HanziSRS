@@ -4,6 +4,7 @@ import re
 from analyze.user_db import User
 from analyze.tag import HskVocab, Category, HanziLevelProject
 from analyze.lookup import Cedict, SpoonFed
+from export.anki.log import Logger
 
 
 class Vocab:
@@ -14,6 +15,7 @@ class Vocab:
         self.hlp = HanziLevelProject()
         self.cedict = Cedict()
         self.sentence = SpoonFed()
+        self.logger = Logger('anki.log.yaml')
 
         self.to_unsuspend = []
         self.to_add = []
@@ -32,6 +34,10 @@ class Vocab:
         modelName: "Chinese Custom Vocab"
         '''
         fields_names = ['Simplified', 'Traditional', 'Pinyin', 'English', 'Hanzi level', 'Note', 'tags']
+
+        for item in sum(self.logger.load_var('to_add'), []):
+            self.to_add.remove(item)
+        self.logger.save_var(to_add=self.to_add)
         with open(filename, 'w') as f:
             for vocab in self.to_add:
                 tags = []
@@ -50,19 +56,23 @@ class Vocab:
                 simplified = lookup.get('Simplified', '')
                 traditional = lookup.get('traditional', '')
                 fields = [
-                    lookup.get('Simplified', '') if lookup.get('Simplified', '') else vocab,
-                    lookup.get('traditional', '') if simplified != traditional else '',
+                    simplified if simplified else vocab,
+                    traditional if simplified != traditional else '',
                     lookup.get('reading', ''),
                     lookup.get('english', ''),
                     hanzi_level,
                     self.sentence.formatted_lookup(vocab),
                     ' '.join(tags)
                 ]
-                assert len(fields_names) == len(fields), "Please recheck if the model is right"
+                assert len(fields_names) == len(fields), "Please recheck if the number and the order of the fields"
 
                 f.write('\t'.join(fields) + '\n')
 
     def unsuspend_to_query(self):
+        for item in sum(self.logger.load_var('to_unsuspend'), []):
+            self.to_unsuspend.remove(item)
+        self.logger.save_var(to_unsuspend=self.to_unsuspend)
+
         for i in range(0, len(self.to_unsuspend), 50):
             try:
                 print(' OR '.join(['Simplified:{0} OR Traditional:{0}'.format(item)
@@ -75,12 +85,17 @@ class Vocab:
 class Sentence:
     def __init__(self):
         self.user = User()
+        self.logger = Logger('anki.log.yaml')
 
         self.to_unsuspend = []
         for sentence in self.user.load_user_sentence():
             self.to_unsuspend.append(sentence)
 
     def unsuspend_to_query(self):
+        for item in sum(self.logger.load_var('to_unsuspend'), []):
+            self.to_unsuspend.remove(item)
+        self.logger.save_var(to_unsuspend=self.to_unsuspend)
+
         for i in range(0, len(self.to_unsuspend), 50):
             try:
                 print(' OR '.join(['Hanzi:{0}'.format(item)
@@ -92,5 +107,5 @@ class Sentence:
 
 if __name__ == '__main__':
     a = Vocab()
-    # a.unsuspend_to_query()
+    a.unsuspend_to_query()
     a.to_tsv('custom_vocab.tsv')
