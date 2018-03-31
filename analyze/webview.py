@@ -32,14 +32,25 @@ class WebContents:
         html = ''
         for fields in iter_vocab():
             html += "<a href='#' onclick='$.post(\"/speak\", {{spoken: \"{0}\"}}); return false;'>{0}</a><br />" \
-                    "{1}<br />"\
+                    "{1}<br /><ul>"\
                 .format(fields['Simplified'], fields['English'])
             for i, sentence_entry in enumerate(self.sentences.iter_lookup(fields['Simplified'])):
                 if i >= 5:
                     break
-                html += "<a href='#' onclick='$.post(\"/speak\", {{spoken: \"{0}\"}}); return false;'>{0}</a><br />"\
-                        "{1}<br />"\
+                html += "<li><a href='#' onclick='$.post(\"/speak\", {{spoken: \"{0}\"}}); return false;'>{0}</a>"\
+                        "{1}</li>"\
                     .format(sentence_entry['Chinese'], sentence_entry['English'])
+            html += "</ul>"
+
+        return html
+
+    def print_tags(self):
+        html = ''
+        for tag in sorted(set(self.user.tags)):
+            html += "<a href='#' onclick='appendToTags(\"{0}\"); return false'>{0}</a>, ".format(tag)
+
+        html += "<script>function appendToTags(tag){" \
+                "$('#tags').val($('#tags').val() + ' ' + tag)}</script>"
 
         return html
 
@@ -51,13 +62,13 @@ contents = WebContents()
 @app.route("/")
 def index():
     html = "<form action='/execute' method='POST'>" \
-           "Tags: <input type='text' name='tags'><br />" \
+           "Tags: <input type='text' id='tags' name='tags'><br />" \
            "Type: " \
            "<input type='radio' name='type' value='vocab'>Vocab" \
            "<input type='radio' name='type' value='sentences'>Sentences" \
            "<input type='submit' value='Submit'>" \
            "</form><br />"
-    html += "Available tags: {}".format(repr(contents.user.tags))
+    html += "Available tags: {}".format(contents.print_tags())
 
     return render_template('index.html', content=Markup(html))
 
@@ -66,7 +77,8 @@ def index():
 def execute():
     if request.method == 'POST':
         data = request.form
-        tags = data['tags'].split(' ')
+        print(data)
+        tags = data['tags'].strip().split(' ')
         if data['type'] == 'vocab':
             html = contents.print_vocabs(tags)
         else:

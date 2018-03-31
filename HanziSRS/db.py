@@ -192,7 +192,7 @@ class VocabCategory(QObject):
                             self.entries[vocab]['categories'].append(category)
 
         self._lookup = dict()
-        self._lookup_category = []
+        self._lookup_categories = []
         self._categories = dict()
         self._category = ''
         self._do_categories()
@@ -205,17 +205,20 @@ class VocabCategory(QObject):
     def get_lookup(self):
         return json.dumps(self._lookup)
 
-    @pyqtSlot(str)
-    def do_lookup_category(self, category):
-        def iter_lookup():
+    @pyqtSlot(list)
+    def do_lookup_categories(self, categories):
+        def iter_lookup(category):
             for entry in self.entries.values():
                 if category in entry['categories']:
                     yield entry
-        self._lookup_category = list(iter_lookup())
+        self._lookup_categories = []
+        for category in categories:
+            for entry in iter_lookup(category):
+                self._lookup_categories.append(entry)
 
     @pyqtProperty(str)
-    def get_lookup_category(self):
-        return json.dumps(self._lookup_category)
+    def get_lookup_categories(self):
+        return json.dumps(self._lookup_categories)
 
     def _do_categories(self):
         for entry in self.entries.values():

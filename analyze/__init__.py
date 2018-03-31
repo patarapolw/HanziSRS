@@ -18,7 +18,8 @@ class Analysis:
         }
 
         self.vocabs = []
-        for vocab in set(chain(self.user.sentence_to_vocab(), self.user.load_user_vocab())):
+        for vocab in set(chain(self.user.sentence_to_vocab())):
+        # for vocab in set(chain(self.user.sentence_to_vocab(), self.user.load_user_vocab())):
             if re.search(r'[\u2E80-\u2FD5\u3400-\u4DBF\u4E00-\u9FCC]', vocab):
                 self.vocabs.append((vocab, self.to_note(vocab)))
             else:

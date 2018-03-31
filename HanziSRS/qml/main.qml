@@ -38,13 +38,15 @@ ApplicationWindow {
             MenuItem {
                 text: "Vocabulary dictionary"
                 onTriggered: {
-//                    openNewWindow("vocab_dictionary.qml")
+//                    openNewWindow("vocab_dict.qml")
                 }
             }
             MenuItem {
                 text: "Vocabulary by category"
                 onTriggered: {
-                    openNewWindow("vocab_category.qml")
+                    var component = Qt.createComponent("vocab_category.qml")
+                    var win = component.createObject(root)
+                    win.activated.connect(openNewVocabWindow)
                 }
             }
             MenuSeparator {}
@@ -52,7 +54,7 @@ ApplicationWindow {
             MenuItem {
                 text: "Read a sentence"
                 onTriggered: {
-                    openNewWindow('reading_explore.qml')
+                    openNewWindow('sentence_explorer.qml')
                 }
             }
         }
@@ -117,7 +119,7 @@ ApplicationWindow {
                     id: vocabNewButton
                     text: "New"
                     onClicked: {
-                        openNewWindow("vocab_new.qml")
+                        openNewVocabWindow([])
                     }
                 }
                 Button {
@@ -258,6 +260,12 @@ ApplicationWindow {
             return; // or maybe throw
         }
         component.createObject(root)
+    }
+
+    function openNewVocabWindow(tags) {
+        var component = Qt.createComponent("vocab_new.qml")
+        var win = component.createObject(root, {'tags': tags})
+//        win.tags = tags
     }
 
     Component.onCompleted: {

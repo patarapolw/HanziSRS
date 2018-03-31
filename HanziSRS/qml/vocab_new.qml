@@ -11,6 +11,8 @@ Window {
     height: 400
     visible: true
 
+    property var tags: []
+
     ColumnLayout {
         anchors.margins: 10
         anchors.fill: parent
@@ -256,29 +258,66 @@ Window {
     property var vocabList
 
     Component.onCompleted: {
-        var user = JSON.parse(pyUser.get_user)
-        var params = {
-            "Old tag": "HSK_Level_" + user.cred.vocab_level,
-            "settings": user.settings
+        if(tags.length === 0){
+            var user = JSON.parse(pyUser.get_user)
+            var params = {
+                "HSK lv": "HSK_Level_" + user.cred.vocab_level,
+                "settings": user.settings
+            }
+            pyHskVocab.do_lookup_params(JSON.stringify(params))
+            root.vocabList = JSON.parse(pyHskVocab.get_lookup_params)
+        } else {
+            pyVocabCategory.do_lookup_categories(tags)
+            root.vocabList = JSON.parse(pyVocabCategory.get_lookup_categories)
         }
-        pyHskVocab.do_lookup_params(JSON.stringify(params))
-        root.vocabList = JSON.parse(pyHskVocab.get_lookup_params)
         setDictionaryEntry(0, 0)
 
         py.speak(vocabSimp.text)
     }
 
     function setDictionaryEntry(index, entryNumber){
-        var result = root.vocabList[index][entryNumber]
+        if(tags.length === 0){
+            var result = root.vocabList[index][entryNumber]
 
-        vocabSimp.text = result["Simplified"]
-        vocabTrad.text = result["Traditional"]
-        pinyin.text = "<a href='" + result["Simplified"] + "'>"
-            + result["HTML pinyin"] + "</a>"
-        english.text = result["HTML meaning"]
+            vocabSimp.text = result["Simplified"]
+            vocabTrad.text = result["Traditional"]
+            pinyin.text = "<a href='" + result["Simplified"] + "'>"
+                + result["HTML pinyin"] + "</a>"
+            english.text = result["HTML meaning"]
 
-        if(root.vocabList[index].length > 1){
-            english.text += "<a href='" + 1 + "'>Next Meaning</a>"
+            if(root.vocabList[index].length > 1){
+                english.text += "<a href='" + 1 + "'>Next Meaning</a>"
+            }
+        } else {
+            var result = root.vocabList[index]
+            pyCedict.do_lookup(result['vocab'])
+            var lookup = JSON.parse(pyCedict.get_lookup)
+
+            vocabSimp.text = result["vocab"]
+            pinyin.text = "<a href='" + result["vocab"] + "'>"
+                + result["reading"] + "</a>"
+
+            if(lookup.length !== 0){
+                vocabTrad.text = lookup[entryNumber].traditional
+
+                english.text = lookup[entryNumber].english
+
+                english.text += "<br />Meaning " + (parseInt(entryNumber)+1) + " of "
+                            + lookup.length + " "
+
+                var line_next_meaning = ''
+                if(parseInt(entryNumber) > 0){
+                    line_next_meaning += "<a href='" + (parseInt(entryNumber)-1) + "'>Previous meaning</a> "
+                }
+
+                if(parseInt(entryNumber) < lookup.length-1){
+                    line_next_meaning += "<a href='" + (parseInt(entryNumber)+1) + "'>Next meaning</a>"
+                }
+                english.text += line_next_meaning
+            } else {
+                vocabTrad.text = ''
+                english.text = result["english"]
+            }
         }
 
         pySentence.do_lookup(vocabSimp.text)
