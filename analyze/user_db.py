@@ -11,7 +11,7 @@ class User:
     def sentence_to_vocab(self):
         cursor = self.db.execute('SELECT * FROM user_sentence')
         for row in cursor:
-            for word in jieba.cut(row[1]):
+            for word in jieba.cut_for_search(row[1]):
                 yield word
 
     def load_user_vocab(self):
