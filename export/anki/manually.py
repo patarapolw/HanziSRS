@@ -1,6 +1,5 @@
 from itertools import chain
 import re
-import shelve
 
 from analyze.user_db import User
 from analyze.tag import HskVocab, Category, HanziLevelProject

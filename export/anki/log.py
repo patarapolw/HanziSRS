@@ -36,10 +36,10 @@ class Logger:
                 if k2 == self.get_caller():
                     for k3, v3 in v2.items():
                         for item in v3:
-                            pre_result.setdefault(k3, []).append(item)
+                            pre_result.setdefault(k2, []).append(item)
 
         result = dict()
-        for k, v in pre_result.items():
+        for k, v in result.items():
             try:
                 for item in v:
                     result.setdefault(k, []).append(item)

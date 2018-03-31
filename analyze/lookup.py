@@ -40,13 +40,14 @@ class SpoonFed:
                 })
 
     def formatted_lookup(self, vocab):
-        def iter_lookup():
-            if vocab:
-                for entry in self.entries:
-                    if re.search(vocab.replace('…', '.*'), entry['Chinese']):
-                        yield entry
         result = ''
-        for item in iter_lookup():
+        for item in self.iter_lookup(vocab):
             result += item['Chinese'] + '<br />'
             result += item['English'] + '<br />'
         return result
+
+    def iter_lookup(self, vocab):
+        if vocab:
+            for entry in self.entries:
+                if re.search(vocab.replace('…', '.*'), entry['Chinese']):
+                    yield entry
