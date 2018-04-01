@@ -50,7 +50,8 @@ class WebContents:
             html += "<a href='#' onclick='appendToTags(\"{0}\"); return false'>{0}</a>, ".format(tag)
 
         html += "<script>function appendToTags(tag){" \
-                "$('#tags').val($('#tags').val() + ' ' + tag)}</script>"
+                "$('#tags').val(tag)}</script>"
+                # "$('#tags').val($('#tags').val() + ' ' + tag)}</script>"
 
         return html
 
@@ -64,7 +65,7 @@ def index():
     html = "<form action='/execute' method='POST'>" \
            "Tags: <input type='text' id='tags' name='tags'><br />" \
            "Type: " \
-           "<input type='radio' name='type' value='vocab'>Vocab" \
+           "<input type='radio' name='type' value='vocab' checked>Vocab" \
            "<input type='radio' name='type' value='sentences'>Sentences" \
            "<input type='submit' value='Submit'>" \
            "</form><br />"
@@ -77,7 +78,6 @@ def index():
 def execute():
     if request.method == 'POST':
         data = request.form
-        print(data)
         tags = data['tags'].strip().split(' ')
         if data['type'] == 'vocab':
             html = contents.print_vocabs(tags)

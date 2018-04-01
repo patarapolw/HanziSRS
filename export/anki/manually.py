@@ -59,7 +59,7 @@ class Vocab:
                     tags.extend(hanzi_level_and_category)
                     hanzi_level = re.findall(r'\d+', hanzi_level_and_category[0])[0]
                 lookup = self.cedict.get(vocab)
-                simplified = lookup.get('Simplified', '')
+                simplified = lookup.get('simplified', '')
                 traditional = lookup.get('traditional', '')
                 fields = [
                     simplified if simplified else vocab,
@@ -93,11 +93,13 @@ class Sentence:
         for sentence in self.user.load_user_sentence():
             self.to_unsuspend.append(sentence)
 
-    def unsuspend_to_query(self):
-        for item in sum(self.logger.load_var('to_unsuspend'), []):
-            self.to_unsuspend.remove(item)
-        self.logger.save_var(to_unsuspend=self.to_unsuspend)
+        with Logger('anki.log.yaml') as log:
+            log_dict = log.load()
+            self.to_unsuspend = [item for item in self.to_unsuspend
+                                 if item not in log_dict.get('to_unsuspend', [])]
+            self.logger.save(to_unsuspend=self.to_unsuspend)
 
+    def unsuspend_to_query(self):
         for i in range(0, len(self.to_unsuspend), 50):
             try:
                 print(' OR '.join(['Hanzi:{0}'.format(item)
