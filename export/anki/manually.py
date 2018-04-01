@@ -18,15 +18,22 @@ class Vocab:
 
         self.to_unsuspend = list()
         self.to_add = list()
-        all_vocabs = set(chain(self.user.sentence_to_vocab(), self.user.load_user_vocab()))
+        all_vocabs = chain(self.user.sentence_to_vocab(), self.user.load_user_vocab())
+        used_vocab = []
         for i, vocab in enumerate(all_vocabs):
-            if re.search(r'[\u2E80-\u2FD5\u3400-\u4DBF\u4E00-\u9FCC]', vocab):
-                if self.hsk.what_level(vocab):
-                    self.to_unsuspend.append(vocab)
+            lookup = self.cedict.get(vocab)
+            simplified = lookup.get('simplified', '')
+            vocab = simplified if simplified else vocab
+
+            if vocab not in used_vocab:
+                used_vocab.append(vocab)
+                if re.search(r'[\u2E80-\u2FD5\u3400-\u4DBF\u4E00-\u9FCC]', vocab):
+                    if self.hsk.what_level(vocab):
+                        self.to_unsuspend.append(vocab)
+                    else:
+                        self.to_add.append(vocab)
                 else:
-                    self.to_add.append(vocab)
-            else:
-                print("Skipped:", vocab)
+                    print("Skipped:", vocab)
 
         with Logger('anki.log.yaml') as log:
             log_dict = log.load()
@@ -47,22 +54,25 @@ class Vocab:
         with open(filename, 'w') as f:
             for vocab in self.to_add:
                 tags = []
-                deck_name = 'Default'
                 hanzi_level = ''
                 level = self.hsk.what_level(vocab)
                 if level:
                     tags.append(level)
+                lookup = self.cedict.get(vocab)
+                simplified = lookup.get('simplified', '')
+                traditional = lookup.get('traditional', '')
+                vocab = simplified if simplified else vocab
+                level = self.hsk.what_level(vocab)
                 for category in self.cat.what_category(vocab):
                     tags.append(category)
                 hanzi_level_and_category = self.hlp.vocab_to_level_and_category(vocab)
                 if hanzi_level_and_category:
                     tags.extend(hanzi_level_and_category)
                     hanzi_level = re.findall(r'\d+', hanzi_level_and_category[0])[0]
-                lookup = self.cedict.get(vocab)
-                simplified = lookup.get('simplified', '')
-                traditional = lookup.get('traditional', '')
+                if level:
+                    tags.append(level)
                 fields = [
-                    simplified if simplified else vocab,
+                    vocab,
                     traditional if simplified != traditional else '',
                     lookup.get('reading', ''),
                     lookup.get('english', ''),
