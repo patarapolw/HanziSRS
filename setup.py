@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 import sys, os
 
 PROJECT_NAME = 'HanziSRS'
-mainscript = '{}/anki_connect.py'.format(PROJECT_NAME)
-setup_requires = ['PyQt5', 'google_speech', 'bs4']
+mainscript = '{}/__main__.py'.format(PROJECT_NAME)
+setup_requires = ['PyQt5', 'google_speech', 'bs4', 'jieba', 'requests', 'flask']
 
 if sys.platform == 'darwin':
     setup_requires.append('py2app')

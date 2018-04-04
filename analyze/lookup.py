@@ -51,3 +51,20 @@ class SpoonFed:
             for entry in self.entries:
                 if re.search(vocab.replace('…', '.*'), entry['Chinese']):
                     yield entry
+
+
+class HanziVariant:
+    def __init__(self):
+        self.entries = dict()
+        with open(database_path('hanzi_variant.tsv')) as f:
+            next(f)
+            for row in f:
+                contents = row.split('\t')
+                self.entries[contents[1]] = contents[-3]
+
+    def get(self, hanzi):
+        return self.entries.get(hanzi, '')
+
+
+if __name__ == '__main__':
+    print(HanziVariant().entries)

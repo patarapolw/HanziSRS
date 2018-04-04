@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hanzi SRS</title>
+
+</head>
+<body>
+    <form action="/execute" method="post">
+        Tags: <input type='text' id='tag_input' name='tags'><br />
+        Type:
+        <input type='radio' name='type' value='hanzi'>Hanzi
+        <input type='radio' name='type' value='vocab' checked>Vocab
+        <input type='radio' name='type' value='sentence'>Sentences<br />
+        <input type='submit' value='Submit'>
+    </form><br />
+    <div>
+        Available tags: <div id="tag_list"></div>
+    </div>
+    <script   src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+    <script type=text/javascript>
+        var tags = {{ tags|tojson|safe }};
+    </script>
+    <script type="text/javascript">
+        $('input[type="radio"]').change(function() {
+            if(this.checked){
+                printTags(this.value);
+            }
+        });
+
+        $('input[type="radio"]:checked').each(function(){
+            printTags(this.value);
+        });
+
+        function printTags(tag_type){
+            var sorted = tags[tag_type].sort().filter(function(item, pos, ary) {
+                return !pos || item != ary[pos - 1];
+            })
+
+            $('#tag_list').html('');
+            for(var i=0; i<sorted.length; i++){
+                $('#tag_list').append('<a href="#" onclick="appendToTags(\'' + sorted[i] + '\'); return false">'
+                + sorted[i] + '</a>, ')
+            }
+        }
+
+        function appendToTags(tag){
+            $('#tag_input').val(tag);
+        }
+    </script>
+</body>
+</html>

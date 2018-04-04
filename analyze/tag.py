@@ -37,10 +37,20 @@ class Category:
                 else:
                     vocab_list.append(contents[0])
 
-    def what_category(self, vocab):
+    def what_category(self, entry, type_of_entry):
         for category, vocab_list in self.entries.items():
-            if vocab in vocab_list:
-                yield category
+            for vocab in vocab_list:
+                if type_of_entry == 'vocab':
+                    if entry == vocab:
+                        yield category
+                elif type_of_entry == 'hanzi':
+                    if entry in vocab:
+                        yield category
+                elif type_of_entry == 'sentence':
+                    if vocab in entry:
+                        yield category
+                else:
+                    raise ValueError('Invalid entry type')
 
 
 class HanziLevelProject:
