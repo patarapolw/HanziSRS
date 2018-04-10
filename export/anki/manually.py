@@ -63,7 +63,7 @@ class Vocab:
                 traditional = lookup.get('traditional', '')
                 vocab = simplified if simplified else vocab
                 level = self.hsk.what_level(vocab)
-                for category in self.cat.what_category(vocab):
+                for category in self.cat.what_category(vocab, 'vocab'):
                     tags.append(category)
                 hanzi_level_and_category = self.hlp.vocab_to_level_and_category(vocab)
                 if hanzi_level_and_category:

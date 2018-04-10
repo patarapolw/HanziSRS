@@ -68,16 +68,23 @@ Window {
         ColumnLayout {
             spacing: 20
             anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width
 
-            Label {
-                property bool match: false
-
-                id: sentence
+            ScrollView {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "普通话汉字"
-                font.pointSize: 50
-                color: match ? "green" : "black"
-                wrapMode: Text.WrapAnywhere
+                implicitWidth: Math.min(parent.width, sentence.width)
+                height: 50
+
+                Label {
+                    property bool match: false
+
+                    id: sentence
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "普通话汉字"
+                    font.pointSize: 50
+                    color: match ? "green" : "black"
+                    wrapMode: Text.WrapAnywhere
+                }
 
                 focus: true
                 Keys.onLeftPressed: minusSlider.clicked(Qt.LeftButton)
