@@ -1,4 +1,7 @@
 # HanziSRS
+
+[![Build Status](https://travis-ci.org/patarapolw/HanziSRS.svg?branch=master)](https://travis-ci.org/patarapolw/HanziSRS)
+
 An attempt to clone www.wanikani.com, but for Chinese
 
 <img src="https://i.imgur.com/FUtra1c.png">
