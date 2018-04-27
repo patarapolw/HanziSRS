@@ -31,8 +31,12 @@ class WebContents:
 
         html = ''
         for sentence in iter_sentence():
+            try:
+                english = next(self.sentences.iter_lookup(sentence))['English']
+            except StopIteration:
+                english = ''
             html += "<a href='#' onclick='$.post(\"/speak\", {{spoken: \"{0}\"}}); return false;'>{0}</a> {1}<br />"\
-                .format(sentence, next(self.sentences.iter_lookup(sentence))['English'])
+                .format(sentence, english)
             html += "<ul>"
             for word in jieba.cut(sentence):
                 html += "<li><a href='#' onclick='$.post(\"/speak\", {{spoken: \"{0}\"}}); return false;'>{0}</a>" \

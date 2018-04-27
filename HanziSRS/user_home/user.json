@@ -1,0 +1,27 @@
+{
+  "cred": {
+    "hanzi_level": "1",
+    "reading_level": "1",
+    "vocab_level": 2
+  },
+  "settings": {
+    "at_least_2_char": true,
+    "srs_interval": {
+      "learning": [
+        "1h",
+        "4h",
+        "8h"
+      ],
+      "review": [
+        "1d",
+        "3d",
+        "1w",
+        "4w",
+        "4mo"
+      ]
+    }
+  },
+  "state": {
+    "sentence": 951
+  }
+}

@@ -3,7 +3,7 @@ import sys, os
 
 PROJECT_NAME = 'HanziSRS'
 mainscript = '{}/__main__.py'.format(PROJECT_NAME)
-setup_requires = ['PyQt5', 'google_speech', 'bs4', 'jieba', 'requests', 'flask']
+setup_requires = ['PyQt5', 'google_speech', 'bs4', 'jieba', 'requests', 'flask', 'PyYAML']
 
 if sys.platform == 'darwin':
     setup_requires.append('py2app')

@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"pyqt5" = "*"
+google-speech = "*"
+"bs4" = "*"
+jieba = "*"
+requests = "*"
+flask = "*"
+pyyaml = "*"
+AnkiTools = {git = "https://github.com/patarapolw/AnkiTools.git", editable = true}
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.6"
