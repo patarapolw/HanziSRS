@@ -1,6 +1,7 @@
 import subprocess
 import sys
-from google_speech import Speech
+if sys.platform != 'darwin':
+    from google_speech import Speech
 
 from PyQt5.QtCore import QObject, pyqtSlot
 

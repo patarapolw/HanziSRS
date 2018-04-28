@@ -11,3 +11,7 @@ An attempt to clone www.wanikani.com, but for Chinese
 <img src="https://i.imgur.com/vg9Dnuy.png">
 <img src="https://i.imgur.com/bQJ7aiS.png">
 <img src="https://i.imgur.com/acarNFV.png">
+
+## Requirements
+
+If not in Mac OSX, this requires `sox`.

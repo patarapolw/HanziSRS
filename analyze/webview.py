@@ -3,7 +3,6 @@ from subprocess import Popen
 from bs4 import BeautifulSoup
 from random import shuffle
 import jieba
-import json
 
 from analyze import Analysis
 from analyze.lookup import SpoonFed, HanziVariant, Cedict

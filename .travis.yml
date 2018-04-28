@@ -4,12 +4,11 @@ language: python
 
 os:
   - linux
-#  - osx
+  - osx
 
 before_install:
 #  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"; fi
 #  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install sox; fi
-#  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libasound2-plugins libasound2-python libsox-fmt-all; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install sox; fi
 
 python:
